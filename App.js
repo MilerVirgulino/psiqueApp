@@ -23,7 +23,7 @@ export default function App() {
             title: 'Início',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
-                <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>
+                
               </TouchableOpacity>
             ),
           })}

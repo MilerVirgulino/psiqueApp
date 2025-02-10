@@ -34,8 +34,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handlePacients = async () => {
-    await signOut(auth);
-    await AsyncStorage.clear();
+    
     navigation.navigate("Pacients");
   };
 

@@ -10,19 +10,20 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("Mortadela1");
   const [instituicao, SetInstituicao] = useState("");
 
-  useEffect(() => {
-    const clearStorage = async () => {
-      await asyncstorage.clear();
-    };
-    clearStorage();
-  }, []); // O array vazio garante que isso só roda uma vez
+
   
 
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       await asyncstorage.setItem('instituicao', instituicao) // Salva a instituição no AsyncStorage
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      
       navigation.replace("Home"); // Vai para Home e remove Login do histórico
+
+      
+
     } catch (error) {
       Alert.alert("Erro", "Usuário ou senha incorretos!");
     }

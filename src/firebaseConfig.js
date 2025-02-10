@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore, collection, addDoc, doc, setDoc } from "firebase/firestore"; 
 
 // 🔹 Substitua com as credenciais do seu Firebase 🔹
 const firebaseConfig = {
