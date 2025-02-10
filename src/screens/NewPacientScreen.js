@@ -6,6 +6,8 @@ import React, { useState, useEffect } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getFirestore, collection, addDoc, doc } from "firebase/firestore";
 import { app, auth } from "../firebaseConfig";
+import { Picker } from "@react-native-picker/picker";
+import { MaskedTextInput } from "react-native-mask-text";
 
 const db = getFirestore(app); // 🔹 Definição do Firestore fora do componente
 
@@ -72,6 +74,8 @@ const NewPacientsScreen = ({ navigation }) => {
       obs,
     };
 
+    console.log(dados)
+
     try {
       // Crie a referência do documento da instituição
       const instituicaoDocRef = doc(db, "DataBases", instituicao); 
@@ -113,11 +117,30 @@ const NewPacientsScreen = ({ navigation }) => {
       )}
 
       <TextInput style={styles.input} placeholder="Endereço" value={address} onChangeText={setAddress} />
-      <TextInput style={styles.input} placeholder="CPF" value={cpf} onChangeText={setCpf} keyboardType="numeric" />
-      <TextInput style={styles.input} placeholder="Sexo" value={gender} onChangeText={setGender} />
-      <TextInput style={styles.input} placeholder="Status" value={activity} onChangeText={setActivity} />
-      <TextInput style={styles.input} placeholder="Telefone 1" value={phoneNumber1} onChangeText={setPhoneNumber1} keyboardType="numeric" />
-      <TextInput style={styles.input} placeholder="Telefone 2" value={phoneNumber2} onChangeText={setPhoneNumber2} keyboardType="numeric" />
+      <MaskedTextInput style={styles.input} mask="999.999.999-99" value={cpf} placeholder="CPF" onChangeText={setCpf}/>
+      
+      
+      <View style={styles.gender}>
+      <Picker   selectedValue={gender} onValueChange={(gender) => setGender(gender)}>
+        <Picker.Item label="Sexo" value="" style={styles.input} />
+        <Picker.Item label="Masculino" value="Masculino" />
+        <Picker.Item label="Feminino" value="Feminino" />
+        <Picker.Item label="Outro" value="Outro" />
+      </Picker>
+      </View>
+
+      <View style={styles.gender}>
+
+      <Picker   selectedValue={activity} onValueChange={(activity) => setActivity(activity)}>
+        <Picker.Item label="Status" value="" style={styles.input} />
+        <Picker.Item label="Ativo" value="Ativo" />
+        <Picker.Item label="Inativo" value="Inativo" />
+      </Picker>
+      </View>
+      
+      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber1} placeholder="Telefone 1" onChangeText={setPhoneNumber1}/>
+      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber2} placeholder="Telefone 2" onChangeText={setPhoneNumber2}/>
+      
       <TextInput style={styles.inputObs} placeholder="Observações" value={obs} onChangeText={setObs} multiline />
 
       <TouchableOpacity style={styles.NewPacient} onPress={handleSubmit}>
@@ -128,11 +151,21 @@ const NewPacientsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  gender:{
+    borderWidth:2,
+    margin:4,
+    padding: 0,
+    height:50,
+    textAlign: "left",
+    alignItems: "left",
+    justifyContent: "center",
+
+  },
   ButtonDate: {
-    borderWidth: 1,
+    borderWidth: 2,
     margin: 4,
-    padding: 1,
-    height: 40,
+    padding: 5,
+    height: 50,
     textAlign: "left",
     justifyContent: "center",
   },
@@ -155,14 +188,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    borderWidth: 1,
-    padding: 1,
+    borderWidth: 2,
+    padding: 5,
     margin: 4,
     height: 50,
   },
   inputObs: {
     borderWidth: 1,
-    padding: 1,
+    padding: 5,
     margin: 4,
     height: 100,
     textAlignVertical: "top",
