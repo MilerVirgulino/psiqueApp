@@ -4,7 +4,7 @@ import {
   import AsyncStorage from "@react-native-async-storage/async-storage";
   import React, { useState, useEffect } from "react";
   import DateTimePicker from "@react-native-community/datetimepicker";
-  import { getFirestore, collection, addDoc, doc, getDoc } from "firebase/firestore";
+  import { getFirestore, collection, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
   import { app, auth } from "../firebaseConfig";
   import { Picker } from "@react-native-picker/picker";
   import { MaskedTextInput } from "react-native-mask-text";
@@ -60,6 +60,7 @@ import {
     try {
       const pacienteRef = doc(db, "DataBases", instituicao, "pacientes", idPacienteEdit);
       const docSnap = await getDoc(pacienteRef);
+      console.log(docSnap.data())
 
       if (docSnap.exists()) {
         const pacienteData = docSnap.data();
@@ -74,7 +75,8 @@ import {
         setPhoneNumber1(pacienteData.phoneNumber1);
         setPhoneNumber2(pacienteData.phoneNumber2);
         setObs(pacienteData.obs);
-        setDate(new Date(pacienteData.date)); // Se a data for um campo no Firestore
+        
+        setDate(convertDateToPicker(pacienteData.date)); 
       } else {
         console.log("Paciente não encontrado!");
       }
@@ -85,9 +87,17 @@ import {
 
   loadDocmentFirebase();
 }, []);
+
+function convertDateToPicker(date) {
+  if (!date) return new Date();
+  const [year, month, day] = date.split("-");
+  return new Date(year, month - 1, day); // Mês começa de 0 (janeiro) no JavaScript
+}
+
     const onChange = (event, selectedDate) => {
       if (selectedDate) {
         setDate(selectedDate);
+        
       }
       setShow(false);
     };
@@ -101,7 +111,7 @@ import {
         Alert.alert("Erro", "Nenhuma instituição encontrada. Verifique seu login.");
         return;
       }
-  
+    
       const dados = {
         name,
         nameMother,
@@ -113,27 +123,40 @@ import {
         phoneNumber1,
         phoneNumber2,
         obs,
+        date: date ? convertDate(date) : "",
       };
-  
+    
       console.log(dados)
-  
+    
       try {
         // Crie a referência do documento da instituição
         const instituicaoDocRef = doc(db, "DataBases", instituicao); 
+        const idPacienteEdit = await AsyncStorage.getItem("idPaciente");
     
-        // Agora, crie a subcoleção 'pacientes' dentro do documento da instituição
-        const pacientesRef = collection(instituicaoDocRef, "pacientes");
+        if (!idPacienteEdit) {
+          console.error("ID do paciente não encontrado.");
+          return;
+        }
     
-        // Adiciona o paciente dentro da subcoleção
-        await addDoc(pacientesRef, dados);
-        console.log("Paciente cadastrado com sucesso!");
-        Alert.alert("Sucesso", "Paciente cadastrado!");
+        // Referência para o documento específico do paciente
+        const pacienteDocRef = doc(instituicaoDocRef, "pacientes", idPacienteEdit);
+    
+        // Atualiza o documento do paciente
+        await updateDoc(pacienteDocRef, dados);
+        console.log("Paciente atualizado com sucesso!");
+        Alert.alert("Sucesso", "Paciente atualizado!");
         navigation.goBack();
       } catch (error) {
         console.error("Erro ao salvar os dados:", error);
-        Alert.alert("Erro", "Não foi possível cadastrar o paciente.");
+        Alert.alert("Erro", "Não foi possível atualizar os dados do paciente.");
       }
     };
+    
+
+    function convertDate(date) {
+
+      return date.toISOString().split('T')[0]
+    }
   
     return (
       <ScrollView contentContainerStyle={styles.container}>

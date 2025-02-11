@@ -54,6 +54,11 @@ const NewPacientsScreen = ({ navigation }) => {
     setShow(true);
   };
 
+  function convertDate(date) {
+
+    return date.toISOString().split('T')[0]
+  }
+
   const handleSubmit = async () => {
     if (!instituicao) {
       Alert.alert("Erro", "Nenhuma instituição encontrada. Verifique seu login.");
@@ -72,7 +77,7 @@ const NewPacientsScreen = ({ navigation }) => {
       phoneNumber1,
       phoneNumber2,
       obs,
-      date: date ? Timestamp.fromDate(date) : "",
+      date: date ? convertDate(date) : "",
     };
 
     try {
