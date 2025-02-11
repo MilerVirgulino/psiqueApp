@@ -1,47 +1,68 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert, StyleSheet, ImageBackground } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
-import asyncstorage from '@react-native-async-storage/async-storage'
+import { auth, app } from "../firebaseConfig";
+import asyncstorage from '@react-native-async-storage/async-storage';
+import { getFirestore, doc, getDocs, collection } from "firebase/firestore";
 
+const db = getFirestore(app);
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("miler.virgulino@gmail.com");
   const [password, setPassword] = useState("Mortadela1");
-  const [instituicao, SetInstituicao] = useState("psique");
-
-
-  
+  const [instituicao, setInstituicao] = useState("psiqueEquipe");
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      await asyncstorage.setItem('instituicao', instituicao) // Salva a instituição no AsyncStorage
-      await new Promise(resolve => setTimeout(resolve, 500));
+        // Busca todas as instituições no Firestore
+        const instituicoesRef = collection(db, "instituicoes");
+        const querySnapshot = await getDocs(instituicoesRef);
 
-      
-      navigation.replace("Home"); // Vai para Home e remove Login do histórico
+        // Converte os documentos para um array de objetos
+        const instituicoes = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
 
-      
+        console.log("Instituições encontradas:", instituicoes);
+
+        // Verifica se a instituição fornecida existe
+        const instituicaoExiste = instituicoes.some(inst => inst.instituicao === instituicao);
+
+        if (!instituicaoExiste) {
+            Alert.alert("Erro", "Instituição não encontrada!");
+            return; // Interrompe o login
+        }
+
+        // Se a instituição existe, continua com o login
+        await signInWithEmailAndPassword(auth, email, password);
+
+        // Salva a instituição no AsyncStorage
+        await asyncstorage.setItem('instituicao', instituicao);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Navega para a tela Home
+        navigation.replace("Home");
 
     } catch (error) {
-      Alert.alert("Erro", "Usuário ou senha incorretos!");
+        console.error("Erro ao fazer login:", error);
+        Alert.alert("Erro", "Usuário ou senha incorretos!");
     }
-  };
+};
+
 
   return (
     <ImageBackground
-      source={require('../images/teamplate.png')} // Caminho da imagem no projeto
-      style={styles.container} // Estilos da view de fundo
+      source={require('../images/teamplate.png')}
+      style={styles.container}
     >
-      <View style={styles.innerContainer}> {/* Container interno para os elementos */}
+      <View style={styles.innerContainer}>
         <Text style={styles.title}>Login</Text>
         <TextInput
           style={styles.input}
           placeholder="Instituição"
           value={instituicao}
-          onChangeText={SetInstituicao}
-          keyboardType="text"
+          onChangeText={setInstituicao}
         />
         <TextInput
           style={styles.input}
@@ -57,7 +78,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Button title="Entrar" onPress={handleLogin} style={styles.button} />
+        <Button title="Entrar" onPress={handleLogin} />
       </View>
     </ImageBackground>
   );
@@ -65,22 +86,22 @@ const LoginScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ocupa toda a tela
-    justifyContent: "center", // Alinha verticalmente
-    alignItems: "center", // Alinha horizontalmente
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   innerContainer: {
-    width: "100%", // Garantir que ocupe toda a largura possível
-    padding: 20, // Adiciona padding
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Adiciona fundo semitransparente para melhorar a legibilidade
-    borderRadius: 10, // Borda arredondada
-    alignItems: 'center', // Centraliza os itens horizontalmente
+    width: "90%",
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 10,
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: 'white', // Cor do texto para melhorar a visibilidade
+    color: 'white',
   },
   input: {
     width: "100%",
@@ -88,11 +109,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     borderRadius: 5,
-    backgroundColor: 'white', // Cor de fundo para os inputs
-  },
-  button:{
-    width: '100%',
-    backgroundColor: "#0000",
+    backgroundColor: 'white',
   },
 });
 
