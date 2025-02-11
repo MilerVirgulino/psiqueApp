@@ -9,6 +9,7 @@ import SchaduleScreen from './src/screens/ScheduleScreen';
 import DoScheduleScreen from './src/screens/DoSchaduleScreen';
 import PacientsScreen from './src/screens/PacientsScreen';
 import NewPacientsScreen from './src/screens/NewPacientScreen';
+import EditPacientScreen from './src/screens/EditPacientScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -77,6 +78,17 @@ export default function App() {
           component={NewPacientsScreen} 
           options={({ navigation }) => ({
             title: 'NewPacients',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="EditPacients" 
+          component={EditPacientScreen} 
+          options={({ navigation }) => ({
+            title: 'Editar Paciente',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>

@@ -1,10 +1,8 @@
-import { 
-  View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StyleSheet
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { getFirestore, collection, addDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, doc, Timestamp } from "firebase/firestore"; // Importando o Timestamp
 import { app, auth } from "../firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { MaskedTextInput } from "react-native-mask-text";
@@ -32,7 +30,6 @@ const NewPacientsScreen = ({ navigation }) => {
         const inst = await AsyncStorage.getItem("instituicao");
         if (inst) {
           setInstituicao(inst);
-          
         } else {
           console.log("Nenhuma instituição encontrada.");
         }
@@ -47,6 +44,8 @@ const NewPacientsScreen = ({ navigation }) => {
   const onChange = (event, selectedDate) => {
     if (selectedDate) {
       setDate(selectedDate);
+      
+      
     }
     setShow(false);
   };
@@ -61,6 +60,7 @@ const NewPacientsScreen = ({ navigation }) => {
       return;
     }
 
+
     const dados = {
       name,
       nameMother,
@@ -72,13 +72,12 @@ const NewPacientsScreen = ({ navigation }) => {
       phoneNumber1,
       phoneNumber2,
       obs,
+      date: date ? Timestamp.fromDate(date) : "",
     };
-
-    console.log(dados)
 
     try {
       // Crie a referência do documento da instituição
-      const instituicaoDocRef = doc(db, "DataBases", instituicao); 
+      const instituicaoDocRef = doc(db, "DataBases", instituicao);
   
       // Agora, crie a subcoleção 'pacientes' dentro do documento da instituição
       const pacientesRef = collection(instituicaoDocRef, "pacientes");
@@ -117,29 +116,27 @@ const NewPacientsScreen = ({ navigation }) => {
       )}
 
       <TextInput style={styles.input} placeholder="Endereço" value={address} onChangeText={setAddress} />
-      <MaskedTextInput style={styles.input} mask="999.999.999-99" value={cpf} placeholder="CPF" onChangeText={setCpf}/>
-      
+      <MaskedTextInput style={styles.input} mask="999.999.999-99" value={cpf} placeholder="CPF" onChangeText={setCpf} />
       
       <View style={styles.gender}>
-      <Picker   selectedValue={gender} onValueChange={(gender) => setGender(gender)}>
-        <Picker.Item label="Sexo" value="" style={styles.input} />
-        <Picker.Item label="Masculino" value="Masculino" />
-        <Picker.Item label="Feminino" value="Feminino" />
-        <Picker.Item label="Outro" value="Outro" />
-      </Picker>
+        <Picker selectedValue={gender} onValueChange={(gender) => setGender(gender)}>
+          <Picker.Item label="Sexo" value="" style={styles.input} />
+          <Picker.Item label="Masculino" value="Masculino" />
+          <Picker.Item label="Feminino" value="Feminino" />
+          <Picker.Item label="Outro" value="Outro" />
+        </Picker>
       </View>
 
       <View style={styles.gender}>
-
-      <Picker   selectedValue={activity} onValueChange={(activity) => setActivity(activity)}>
-        <Picker.Item label="Status" value="" style={styles.input} />
-        <Picker.Item label="Ativo" value="Ativo" />
-        <Picker.Item label="Inativo" value="Inativo" />
-      </Picker>
+        <Picker selectedValue={activity} onValueChange={(activity) => setActivity(activity)}>
+          <Picker.Item label="Status" value="" style={styles.input} />
+          <Picker.Item label="Ativo" value="Ativo" />
+          <Picker.Item label="Inativo" value="Inativo" />
+        </Picker>
       </View>
       
-      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber1} placeholder="Telefone 1" onChangeText={setPhoneNumber1}/>
-      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber2} placeholder="Telefone 2" onChangeText={setPhoneNumber2}/>
+      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber1} placeholder="Telefone 1" onChangeText={setPhoneNumber1} />
+      <MaskedTextInput style={styles.input} mask="(99) 99999-9999" value={phoneNumber2} placeholder="Telefone 2" onChangeText={setPhoneNumber2} />
       
       <TextInput style={styles.inputObs} placeholder="Observações" value={obs} onChangeText={setObs} multiline />
 
@@ -151,15 +148,14 @@ const NewPacientsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  gender:{
-    borderWidth:2,
-    margin:4,
+  gender: {
+    borderWidth: 2,
+    margin: 4,
     padding: 0,
-    height:50,
+    height: 50,
     textAlign: "left",
     alignItems: "left",
     justifyContent: "center",
-
   },
   ButtonDate: {
     borderWidth: 2,
