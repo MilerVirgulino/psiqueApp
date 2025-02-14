@@ -186,7 +186,7 @@ function convertDateToPicker(date) {
         
         <View style={styles.gender}>
         <Picker   selectedValue={gender} onValueChange={(gender) => setGender(gender)}>
-          <Picker.Item label="Sexo" value="" style={styles.input} />
+          <Picker.Item label="Sexo" value="" />
           <Picker.Item label="Masculino" value="Masculino" />
           <Picker.Item label="Feminino" value="Feminino" />
           <Picker.Item label="Outro" value="Outro" />
