@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal } fr
 import { useState, useEffect } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
-import { getFirestore, collection, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where, deleteDoc,doc, updateDoc } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -51,12 +51,12 @@ const ScheduleScreen = ({ navigation }) => {
                     console.error("Instituição não encontrada.");
                     return;
                 }
-
+    
                 if (!date) return;
-
+    
                 const dataFormatada = date.toISOString().split("T")[0]; // YYYY-MM-DD
                 const agendamentosRef = collection(db, "DataBases", instituicao, "agendamentos");
-
+    
                 let querySnapshot = [];
                 if (responsavelSelecionado) {
                     const q1 = query(
@@ -69,18 +69,25 @@ const ScheduleScreen = ({ navigation }) => {
                     const q2 = query(agendamentosRef, where("data", "==", dataFormatada));
                     querySnapshot = await getDocs(q2);
                 }
-
-                const listaAgendamentos = querySnapshot.docs.map((doc) => ({
+    
+                let listaAgendamentos = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
-
+    
+                // Ordena os agendamentos pelo horário (convertendo a string HH:mm para um formato comparável)
+                listaAgendamentos.sort((a, b) => {
+                    const horaA = a.horario.split(":").map(Number); // Converte para [HH, MM]
+                    const horaB = b.horario.split(":").map(Number);
+                    return horaA[0] - horaB[0] || horaA[1] - horaB[1]; // Compara primeiro a hora, depois os minutos
+                });
+    
                 setAgendamentos(listaAgendamentos);
             } catch (error) {
                 console.error("Erro ao buscar agendamentos:", error);
             }
         };
-
+    
         carregarAgendamentos();
     }, [responsavelSelecionado, date]);
 
@@ -110,27 +117,61 @@ const ScheduleScreen = ({ navigation }) => {
         setModalVisible(false);
     };
 
-    const cancelarAgendamento = () => {
-        console.log("Agendamento cancelado:", agendamentoSelecionado?.id);
-        setModalVisible(false);
-    };
-
-    const excluirAgendamento = async() => {
+    const cancelarAgendamento = async () => {
         const instituicao = await AsyncStorage.getItem("instituicao");
-        const agendamentoRef=doc(db,"DataBases",instituicao, "agendamentos",agendamentoSelecionado.id)
-        console.log("Agendamento excluído:", agendamentoSelecionado?.id);
-        try{
-            await deleteDoc(agendamentoRef);
-            
-
-            setModalVisible(false);
-            
-        }catch(error){
-            console.error("Erro ao excluir agendamento:", error);
-            Alert.alert("Erro ao excluir agendamento", error.message);
+        if (!instituicao) {
+            console.error("Instituição não encontrada.");
+            return;
         }
-       
+    
+        try {
+            const dados = {
+                agendamento: "Cancelado"
+            };
+            
+            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
+            await updateDoc(agendamentoRef, dados);
+            console.log("Agendamento cancelado com sucesso!");
+    
+            // Atualizar a lista de agendamentos refazendo a busca
+            setAgendamentos(prevAgendamentos =>
+                prevAgendamentos.map(agendamento =>
+                    agendamento.id === agendamentoSelecionado.id
+                        ? { ...agendamento, agendamento: "Cancelado" }
+                        : agendamento
+                )
+            );
+    
+            setModalVisible(false);
+        } catch (err) {
+            console.error("Erro ao cancelar agendamento", err);
+        }
     };
+
+    const excluirAgendamento = async () => {
+    
+        const instituicao = await AsyncStorage.getItem("instituicao");
+        if (!instituicao) {
+            console.error("Instituição não encontrada.");
+            return;
+        }
+    
+        try {
+            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
+            await deleteDoc(agendamentoRef);
+            console.log("Agendamento excluído com sucesso!");
+    
+            // Atualizar a lista de agendamentos
+            setAgendamentos(prevAgendamentos =>
+                prevAgendamentos.filter(agendamento => agendamento.id !== agendamentoSelecionado.id)
+            );
+    
+            setModalVisible(false);
+        } catch (err) {
+            console.error("Erro ao excluir agendamento", err);
+        }
+    };
+    
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -164,6 +205,7 @@ const ScheduleScreen = ({ navigation }) => {
 
             <View style={styles.agendamentosContainer}>
                 <Text style={styles.title}>Agendamentos:</Text>
+
                 
                 {
                 agendamentos.length > 0 ? (
