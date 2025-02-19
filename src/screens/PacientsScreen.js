@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { app } from "../firebaseConfig"; // Verifique o caminho correto
+import { app } from "../firebaseConfig";
+import { useFocusEffect } from "@react-navigation/native";
 
 const db = getFirestore(app);
 
@@ -12,52 +13,57 @@ const PacientsScreen = ({ navigation }) => {
     const [pacientes, setPacientes] = useState([]);
     const [filteredPacientes, setFilteredPacientes] = useState([]);
 
-    useEffect(() => {
-        const fetchPacientes = async () => {
-            try {
-                const instituicao = await AsyncStorage.getItem("instituicao");
-                if (!instituicao) {
-                    console.error("Instituição não encontrada.");
-                    return;
-                }
-
-                const pacientesRef = collection(db, "DataBases", instituicao, "pacientes");
-                const querySnapshot = await getDocs(pacientesRef);
-
-                const pacientesPulled = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-
-                
-                setPacientes(pacientesPulled);
-                setFilteredPacientes(pacientesPulled); // Inicializa a lista filtrada com todos os pacientes
-            } catch (error) {
-                console.error("Erro ao buscar pacientes:", error);
+    // Função para buscar pacientes no Firestore
+    const fetchPacientes = async () => {
+        try {
+            const instituicao = await AsyncStorage.getItem("instituicao");
+            if (!instituicao) {
+                console.error("Instituição não encontrada.");
+                return;
             }
-        };
 
-        fetchPacientes();
-    }, []);
+            const pacientesRef = collection(db, "DataBases", instituicao, "pacientes");
+            const querySnapshot = await getDocs(pacientesRef);
 
-    // 🔍 Filtrando pacientes conforme o usuário digita
+            const pacientesPulled = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            setPacientes(pacientesPulled);
+            setFilteredPacientes(pacientesPulled);
+        } catch (error) {
+            console.error("Erro ao buscar pacientes:", error);
+        }
+    };
+
+    // Atualiza a lista ao voltar para a tela
+    useFocusEffect(
+        useCallback(() => {
+            fetchPacientes();
+        }, [])
+    );
+
+    // Filtra pacientes quando a busca muda
     useEffect(() => {
         const lowerSearch = search.toLowerCase();
-        const filtered = pacientes.filter((paciente) =>
-            paciente.name?.toLowerCase().includes(lowerSearch)
-        );
+        
+        // Filtra os pacientes
+        const filtered = pacientes
+            .filter(paciente => paciente.name?.toLowerCase().includes(lowerSearch))
+            .sort((a, b) => a.name.localeCompare(b.name)); // Ordena alfabeticamente
+    
         setFilteredPacientes(filtered);
     }, [search, pacientes]);
+    
 
     const handleNewPacientScreen = () => {
         navigation.navigate("NewPacients");
     };
 
-    const handleOptionShow = async(id) => {
-        AsyncStorage.setItem('idPaciente', id)
-        await new Promise(resolve => setTimeout(resolve, 500));
+    const handleOptionShow = async (id) => {
+        await AsyncStorage.setItem("idPaciente", id);
         navigation.navigate("EditPacients");
-        
     };
 
     return (
@@ -83,9 +89,7 @@ const PacientsScreen = ({ navigation }) => {
             {filteredPacientes.length > 0 ? (
                 filteredPacientes.map((paciente) => (
                     <TouchableOpacity key={paciente.id} onPress={() => handleOptionShow(paciente.id)} style={styles.pacienteItem}>
-                        <View >
-                            <Text style={styles.pacienteNome}>{paciente.name || "Nome Desconhecido"}</Text>
-                        </View>
+                        <Text style={styles.pacienteNome}>{paciente.name || "Nome Desconhecido"}</Text>
                     </TouchableOpacity>
                 ))
             ) : (

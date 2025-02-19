@@ -1,11 +1,12 @@
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getFirestore, collection, addDoc, doc, Timestamp } from "firebase/firestore"; // Importando o Timestamp
 import { app, auth } from "../firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { MaskedTextInput } from "react-native-mask-text";
+
 
 const db = getFirestore(app); // 🔹 Definição do Firestore fora do componente
 
@@ -24,6 +25,8 @@ const NewPacientsScreen = ({ navigation }) => {
   const [obs, setObs] = useState("");
   const [instituicao, setInstituicao] = useState(null); // Estado para armazenar a instituição
 
+
+  
   useEffect(() => {
     const loadInstituicao = async () => {
       try {
@@ -80,6 +83,11 @@ const NewPacientsScreen = ({ navigation }) => {
       date: date ? convertDate(date) : "",
     };
 
+    if(!name || !nameMother || !nameFather || !address || !cpf || !gender || !activity || !phoneNumber1 || !phoneNumber2 || !date){
+      Alert.alert("Erro", "Todos os campos são obrigatórios.");
+      return
+    }
+
     try {
       // Crie a referência do documento da instituição
       const instituicaoDocRef = doc(db, "DataBases", instituicao);
@@ -89,7 +97,6 @@ const NewPacientsScreen = ({ navigation }) => {
   
       // Adiciona o paciente dentro da subcoleção
       await addDoc(pacientesRef, dados);
-      console.log("Paciente cadastrado com sucesso!");
       Alert.alert("Sucesso", "Paciente cadastrado!");
       navigation.goBack();
     } catch (error) {

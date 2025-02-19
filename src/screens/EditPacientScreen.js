@@ -4,7 +4,7 @@ import {
   import AsyncStorage from "@react-native-async-storage/async-storage";
   import React, { useState, useEffect } from "react";
   import DateTimePicker from "@react-native-community/datetimepicker";
-  import { getFirestore, collection, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+  import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
   import { app, auth } from "../firebaseConfig";
   import { Picker } from "@react-native-picker/picker";
   import { MaskedTextInput } from "react-native-mask-text";
@@ -60,7 +60,6 @@ import {
     try {
       const pacienteRef = doc(db, "DataBases", instituicao, "pacientes", idPacienteEdit);
       const docSnap = await getDoc(pacienteRef);
-      console.log(docSnap.data())
 
       if (docSnap.exists()) {
         const pacienteData = docSnap.data();
@@ -126,7 +125,6 @@ function convertDateToPicker(date) {
         date: date ? convertDate(date) : "",
       };
     
-      console.log(dados)
     
       try {
         // Crie a referência do documento da instituição
@@ -143,7 +141,7 @@ function convertDateToPicker(date) {
     
         // Atualiza o documento do paciente
         await updateDoc(pacienteDocRef, dados);
-        console.log("Paciente atualizado com sucesso!");
+      
         Alert.alert("Sucesso", "Paciente atualizado!");
         navigation.goBack();
       } catch (error) {
@@ -151,7 +149,44 @@ function convertDateToPicker(date) {
         Alert.alert("Erro", "Não foi possível atualizar os dados do paciente.");
       }
     };
+
+    const handleDellPacient = async () => {
+      const idPacienteEdit = await AsyncStorage.getItem("idPaciente");
+      if (!idPacienteEdit) {
+        console.error("ID do paciente não encontrado.");
+        return;
+      }
     
+      // Exibe o Alert para confirmação
+      Alert.alert(
+        "Confirmação de exclusão", 
+        "Você tem certeza que deseja excluir este paciente?", 
+        [
+          {
+            text: "Cancelar",
+            onPress: () => console.log("Exclusão cancelada"),
+            style: "cancel"
+          },
+          {
+            text: "Excluir",
+            onPress: async () => {
+              // Cria a referência do documento com o ID do paciente
+              const pacienteRef = doc(db, "DataBases", instituicao, "pacientes", idPacienteEdit);
+    
+              // Tenta excluir o documento
+              try {
+                await deleteDoc(pacienteRef);
+                Alert.alert("Paciente Excluido com Sucesso")
+                navigation.goBack();
+                
+              } catch (error) {
+                console.error("Erro ao excluir o paciente:", error);
+              }
+            }
+          }
+        ]
+      );
+    };
 
     function convertDate(date) {
 
@@ -208,13 +243,28 @@ function convertDateToPicker(date) {
         <TextInput style={styles.inputObs} placeholder="Observações" value={obs} onChangeText={setObs} multiline />
   
         <TouchableOpacity style={styles.NewPacient} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Finalizar Cadastro</Text>
+          <Text style={styles.buttonText}>Atualizar Cadastro</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.DellPacient} onPress={handleDellPacient}>
+          <Text style={styles.buttonText}>Deletar paciente</Text>
         </TouchableOpacity>
       </ScrollView>
     );
   };
   
   const styles = StyleSheet.create({
+    DellPacient:{
+      backgroundColor: "#f00",
+      padding: 10,
+      borderRadius: 8,
+      fontSize: 16,
+      fontWeight: "bold",
+      alignSelf: "center",
+      marginTop: 20,
+      marginBottom: 10,
+      width: "90%",
+      textAlign: "center",
+    },
     gender:{
       borderWidth:2,
       margin:4,
