@@ -21,7 +21,7 @@ const DoScheduleScreen = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(null);
   const [valor, setValor] = useState("");
-  console.log(valor / 100);
+  
 
   const onChange = (event, selectedDate) => {
     if (selectedDate) {
@@ -43,6 +43,7 @@ const DoScheduleScreen = ({ navigation }) => {
       data: date ? convertDate(date) : "erro ao agendar data",
       valor: valor / 100,
       horario: selectedTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+      agendamento: "Agendado"
     };
 
     try {
