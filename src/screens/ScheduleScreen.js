@@ -203,28 +203,43 @@ const ScheduleScreen = ({ navigation }) => {
     };
 
     const excluirAgendamento = async () => {
-    
         const instituicao = await AsyncStorage.getItem("instituicao");
         if (!instituicao) {
             console.error("Instituição não encontrada.");
             return;
         }
     
-        try {
-            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
-            await deleteDoc(agendamentoRef);
-            console.log("Agendamento excluído com sucesso!");
-    
-            // Atualizar a lista de agendamentos
-            setAgendamentos(prevAgendamentos =>
-                prevAgendamentos.filter(agendamento => agendamento.id !== agendamentoSelecionado.id)
-            );
-    
-            setModalVisible(false);
-        } catch (err) {
-            console.error("Erro ao excluir agendamento", err);
-        }
+        Alert.alert(
+            "Confirmação",
+            "Tem certeza que deseja excluir este agendamento?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel"
+                },
+                {
+                    text: "Excluir",
+                    onPress: async () => {
+                        try {
+                            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
+                            await deleteDoc(agendamentoRef);
+                            console.log("Agendamento excluído com sucesso!");
+                
+                            // Atualizar a lista de agendamentos
+                            setAgendamentos(prevAgendamentos =>
+                                prevAgendamentos.filter(agendamento => agendamento.id !== agendamentoSelecionado.id)
+                            );
+                
+                            setModalVisible(false);
+                        } catch (err) {
+                            console.error("Erro ao excluir agendamento", err);
+                        }
+                    }
+                }
+            ]
+        );
     };
+    
     
 
     return (
@@ -275,7 +290,7 @@ const ScheduleScreen = ({ navigation }) => {
                                 <Text style={styles.itemcontent}><Text style={styles.pacineteName}>Paciente:</Text>  {agendamento.paciente}</Text>
                                 <Text style={styles.itemcontent}>Responsável - {agendamento.responsavel}</Text>
                                 <Text style={styles.itemcontent}>{agendamento.horario} - {agendamento.tipo}</Text>
-                                <Text style={styles.itemcontent}> Status: {agendamento.agendamento}</Text>
+                                <Text style={styles.itemcontent}> Status: <Text style={styles.pacineteName}>{agendamento.agendamento}</Text></Text>
                             </View>
                         </TouchableOpacity>
                     ))
