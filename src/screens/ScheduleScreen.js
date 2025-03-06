@@ -107,14 +107,67 @@ const ScheduleScreen = ({ navigation }) => {
         setModalVisible(true);
     };
 
-    const confirmarAgendamento = () => {
-        console.log("Agendamento confirmado:", agendamentoSelecionado?.id);
-        setModalVisible(false);
+    const confirmarAgendamento = async() => {
+        const instituicao = await AsyncStorage.getItem("instituicao");
+        if (!instituicao) {
+            console.error("Instituição não encontrada.");
+            return;
+        }
+    
+        try {
+            const dados = {
+                agendamento: "Confirmado"
+            };
+            
+            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
+            await updateDoc(agendamentoRef, dados);
+            console.log("Agendamento marcado como confirmado com sucesso!");
+    
+            // Atualizar a lista de agendamentos refazendo a busca
+            setAgendamentos(prevAgendamentos =>
+                prevAgendamentos.map(agendamento =>
+                    agendamento.id === agendamentoSelecionado.id
+                        ? { ...agendamento, agendamento: "Confirmado" }
+                        : agendamento
+                )
+            );
+    
+            setModalVisible(false);
+            carregarAgendamentos()
+        } catch (err) {
+            console.error("Erro ao cancelar agendamento", err);
+        }
     };
 
-    const marcarAtendido = () => {
-        console.log("Agendamento marcado como atendido:", agendamentoSelecionado?.id);
-        setModalVisible(false);
+    const marcarAtendido = async() => {
+        const instituicao = await AsyncStorage.getItem("instituicao");
+        if (!instituicao) {
+            console.error("Instituição não encontrada.");
+            return;
+        }
+    
+        try {
+            const dados = {
+                agendamento: "Atendido"
+            };
+            
+            const agendamentoRef = doc(db, "DataBases", instituicao, "agendamentos", agendamentoSelecionado.id);
+            await updateDoc(agendamentoRef, dados);
+            console.log("Agendamento marcado como atendido com sucesso!");
+    
+            // Atualizar a lista de agendamentos refazendo a busca
+            setAgendamentos(prevAgendamentos =>
+                prevAgendamentos.map(agendamento =>
+                    agendamento.id === agendamentoSelecionado.id
+                        ? { ...agendamento, agendamento: "Atendido" }
+                        : agendamento
+                )
+            );
+    
+            setModalVisible(false);
+        } catch (err) {
+            console.error("Erro ao cancelar agendamento", err);
+        }
     };
 
     const cancelarAgendamento = async () => {
@@ -143,6 +196,7 @@ const ScheduleScreen = ({ navigation }) => {
             );
     
             setModalVisible(false);
+            
         } catch (err) {
             console.error("Erro ao cancelar agendamento", err);
         }
@@ -213,15 +267,15 @@ const ScheduleScreen = ({ navigation }) => {
                         
                         
                         
-                        <TouchableOpacity
+                        <TouchableOpacity 
                             key={agendamento.id}
                             onLongPress={() => handleLongPress(agendamento)}
                         >
                             <View style={styles.agendamentoItem}>
-                                <Text>{agendamento.paciente}</Text>
-                                <Text>Responsável - {agendamento.responsavel}</Text>
-                                <Text>{agendamento.horario} - {agendamento.tipo}</Text>
-                                <Text> Status: {agendamento.agendamento}</Text>
+                                <Text style={styles.itemcontent}><Text style={styles.pacineteName}>Paciente:</Text>  {agendamento.paciente}</Text>
+                                <Text style={styles.itemcontent}>Responsável - {agendamento.responsavel}</Text>
+                                <Text style={styles.itemcontent}>{agendamento.horario} - {agendamento.tipo}</Text>
+                                <Text style={styles.itemcontent}> Status: {agendamento.agendamento}</Text>
                             </View>
                         </TouchableOpacity>
                     ))
@@ -275,6 +329,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
+    itemcontent :{
+        
+        fontSize: 18,
+    },
+    pacineteName:{
+        fontWeight: "bold",
+    },
+    
     modalContent: {
         backgroundColor: "#fff",
         padding: 20,
@@ -302,7 +364,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flexGrow: 1,
-        padding: 20,
+        padding: 5,
+
     },
     buttonDate: {
         backgroundColor: "#F0F8FF",
@@ -336,11 +399,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 10,
+        marginLeft: 120,
+        marginTop: 10,
+        marginBottom: 20,
+        
+        
     },
     agendamentoItem: {
-        padding: 10,
-        borderBottomWidth: 1,
+        margin: 0,
+        padding: 5,
+        borderBottomWidth: 5,
         borderBottomColor: "#DDD",
+
     },
     emptyText: {
         color: "#666",

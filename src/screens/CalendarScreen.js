@@ -67,11 +67,19 @@ const styles = StyleSheet.create({
     margin: 10, // Adiciona um espaçamento entre as imagens
     aspectRatio: 1, // Garante que as imagens sejam quadradas
     },
+    container:{
+      flex:1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F5F5',
+      flexDirection: 'row',
+
+    },
     touchButton:{
     textAlign: 'center',
     margin: 10, 
     padding: 1,         // Adiciona um espaçamento entre o botão e as bordas
-    borderWidth: 1,         // Largura da borda
+    borderWidth: 2,         // Largura da borda
     borderColor: 'black',    // Cor da borda
     borderRadius: 10,       // Bordas arredondadas
     borderStyle: 'solid',   // Estilo da borda (pode ser 'dashed', 'dotted' etc.)   

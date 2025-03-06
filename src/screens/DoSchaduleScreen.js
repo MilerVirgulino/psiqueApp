@@ -36,6 +36,10 @@ const DoScheduleScreen = ({ navigation }) => {
       console.error("Instituição não encontrada.");
       return;
     }
+    if (!selectedPacient ||!selectedTipo ||!selectedResponsavel ||!date ||!valor) {
+      Alert.alert("Preencha todos os campos obrigatórios");
+      return;
+    }
     const dados = {
       paciente: selectedPacient,
       tipo: selectedTipo,
@@ -72,15 +76,17 @@ const DoScheduleScreen = ({ navigation }) => {
           console.error("Instituição não encontrada.");
           return;
         }
-
+    
         const pacientesRef = collection(db, "DataBases", instituicao, "pacientes");
         const querySnapshot = await getDocs(pacientesRef);
-
-        const pacientesPulled = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || "Nome não definido",
-        }));
-
+    
+        const pacientesPulled = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            name: doc.data().name || "Nome não definido",
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name)); // Ordenação alfabética
+    
         setPacientes(pacientesPulled);
       } catch (error) {
         console.error("Erro ao buscar pacientes:", error);
