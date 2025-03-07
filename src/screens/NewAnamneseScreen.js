@@ -6,6 +6,7 @@ import { getFirestore, collection, addDoc, doc, Timestamp, getDocs } from "fireb
 import { app, auth } from "../firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { MaskedTextInput } from "react-native-mask-text";
+import { getAuth } from "firebase/auth";
 
 
 const db = getFirestore(app); // 🔹 Definição do Firestore fora do componente
@@ -46,7 +47,7 @@ const NewAnamneseScreen = ({ navigation }) => {
   const [inteligency, setInteligency]= useState("");
   const [diagnosticHypothesis, setDiagnosticHypothesis]=useState("");
 
-
+  
 
   useEffect(() => {
     const fetchPacientes = async () => {
@@ -164,10 +165,11 @@ const NewAnamneseScreen = ({ navigation }) => {
 
     try {
       // Crie a referência do documento da instituição
-      const instituicaoDocRef = doc(db, "DataBases", instituicao);
+      const auth=getAuth();
+      const user = auth.currentUser;
   
       // Agora, crie a subcoleção 'pacientes' dentro do documento da instituição
-      const pacientesRef = collection(instituicaoDocRef, "anamneses");
+      const pacientesRef = collection(db, "DataBases", instituicao, "anamneses", user.uid, "pacientes");
   
       // Adiciona o paciente dentro da subcoleção
       await addDoc(pacientesRef, dados);
