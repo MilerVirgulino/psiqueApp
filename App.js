@@ -44,7 +44,7 @@ export default function App() {
           name="Schadule" 
           component={SchaduleScreen} 
           options={({ navigation }) => ({
-            title: 'Schadule',
+            title: 'Agendamentos',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
@@ -55,7 +55,7 @@ export default function App() {
           name="DoSchadule" 
           component={DoScheduleScreen} 
           options={({ navigation }) => ({
-            title: 'DoSchadule',
+            title: 'Agendar',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
@@ -66,7 +66,7 @@ export default function App() {
           name="Pacients" 
           component={PacientsScreen} 
           options={({ navigation }) => ({
-            title: 'Pacients',
+            title: 'Pacientes',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
@@ -77,7 +77,7 @@ export default function App() {
           name="NewPacients" 
           component={NewPacientsScreen} 
           options={({ navigation }) => ({
-            title: 'NewPacients',
+            title: 'Novo Paciente',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>

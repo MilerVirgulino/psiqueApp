@@ -124,6 +124,10 @@ function convertDateToPicker(date) {
         obs,
         date: date ? convertDate(date) : "",
       };
+      if (!name || !nameMother || !nameFather || !address || !cpf || !gender || !activity || !phoneNumber1 || !phoneNumber2 || !date){
+        Alert.alert("Erro", "Todos os campos são obrigatórios.");
+        return;
+      }
     
     
       try {
