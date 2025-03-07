@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, Alert, StyleSheet, ImageBackground } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, app } from "../firebaseConfig";
+import { auth, app } from "../firebaseConfig";  // Certifique-se de que está importando 'auth' corretamente
 import asyncstorage from '@react-native-async-storage/async-storage';
 import { getFirestore, doc, getDocs, collection } from "firebase/firestore";
 
@@ -12,44 +12,54 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("Mortadela1");
   const [instituicao, setInstituicao] = useState("psiqueEquipe");
 
+  useEffect(() => {
+    // Verifica se o usuário já está autenticado
+    const user = auth.currentUser;  // Acesso correto ao objeto 'auth' para obter o 'currentUser'
+    if (user) {
+      console.log("Usuário logado:", user.email);
+      navigation.replace("Home");  // Redireciona para a página Home se o usuário estiver autenticado
+    } else {
+      console.log("Usuário não logado.");
+    }
+  }, [navigation]);  // O useEffect será executado na montagem do componente
+
   const handleLogin = async () => {
     try {
-        // Busca todas as instituições no Firestore
-        const instituicoesRef = collection(db, "instituicoes");
-        const querySnapshot = await getDocs(instituicoesRef);
+      // Busca todas as instituições no Firestore
+      const instituicoesRef = collection(db, "instituicoes");
+      const querySnapshot = await getDocs(instituicoesRef);
 
-        // Converte os documentos para um array de objetos
-        const instituicoes = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+      // Converte os documentos para um array de objetos
+      const instituicoes = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-        console.log("Instituições encontradas:", instituicoes);
+      console.log("Instituições encontradas:", instituicoes);
 
-        // Verifica se a instituição fornecida existe
-        const instituicaoExiste = instituicoes.some(inst => inst.instituicao === instituicao);
+      // Verifica se a instituição fornecida existe
+      const instituicaoExiste = instituicoes.some(inst => inst.instituicao === instituicao);
 
-        if (!instituicaoExiste) {
-            Alert.alert("Erro", "Instituição não encontrada!");
-            return; // Interrompe o login
-        }
+      if (!instituicaoExiste) {
+        Alert.alert("Erro", "Instituição não encontrada!");
+        return; // Interrompe o login
+      }
 
-        // Se a instituição existe, continua com o login
-        await signInWithEmailAndPassword(auth, email, password);
+      // Se a instituição existe, continua com o login
+      await signInWithEmailAndPassword(auth, email, password);
 
-        // Salva a instituição no AsyncStorage
-        await asyncstorage.setItem('instituicao', instituicao);
-        await new Promise(resolve => setTimeout(resolve, 500));
+      // Salva a instituição no AsyncStorage
+      await asyncstorage.setItem('instituicao', instituicao);
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Navega para a tela Home
-        navigation.replace("Home");
+      // Navega para a tela Home
+      navigation.replace("Home");
 
     } catch (error) {
-        console.error("Erro ao fazer login:", error);
-        Alert.alert("Erro", "Usuário ou senha incorretos!");
+      console.error("Erro ao fazer login:", error);
+      Alert.alert("Erro", "Usuário ou senha incorretos!");
     }
-};
-
+  };
 
   return (
     <ImageBackground

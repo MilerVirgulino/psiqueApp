@@ -37,6 +37,9 @@ const HomeScreen = ({ navigation }) => {
     
     navigation.navigate("Pacients");
   };
+  const handleAnamnese = () => {
+    navigation.navigate("AnamneseScreen");
+  };
 
 
 
@@ -54,7 +57,7 @@ const HomeScreen = ({ navigation }) => {
         <Image source={require("../images/svg/documents-svgrepo-com.png")}style={styles.image} />
         <Text>Pacientes</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleAnamnese}>
         <Image source={require("../images/svg/doctor-svgrepo-com.png")}style={styles.image} />
         <Text>Anamneses</Text>
       </TouchableOpacity>
