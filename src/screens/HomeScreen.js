@@ -40,6 +40,9 @@ const HomeScreen = ({ navigation }) => {
   const handleAnamnese = () => {
     navigation.navigate("AnamneseScreen");
   };
+  const handleRecords = () => {
+    navigation.navigate("RecordsScreen");
+  };
 
 
 
@@ -63,7 +66,7 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity>
       </View>
       <View style={styles.linha2}>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleRecords}>
         <Image source={require("../images/svg/record-svgrepo-com.png")}style={styles.image} />
         <Text>Prontuários</Text>
       </TouchableOpacity>

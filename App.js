@@ -12,6 +12,9 @@ import NewPacientsScreen from './src/screens/NewPacientScreen';
 import EditPacientScreen from './src/screens/EditPacientScreen';
 import AnamneseScreen from './src/screens/AnamneseScreen';
 import NewAnamneseScreen from './src/screens/NewAnamneseScreen';
+import RecordsScreen from './src/screens/RecordsScreen';
+import NewRecordsScreen from './src/screens/NewRecordsScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -113,6 +116,28 @@ export default function App() {
           component={NewAnamneseScreen}  
           options={({ navigation }) => ({
             title: 'Nova Anamnese',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="RecordsScreen"  
+          component={RecordsScreen}  
+          options={({ navigation }) => ({
+            title: 'Prontuários',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="NewRecordsScreen"  
+          component={NewRecordsScreen}  
+          options={({ navigation }) => ({
+            title: 'Novo protunário',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
