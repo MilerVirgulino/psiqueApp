@@ -6,6 +6,11 @@ const RecordsScreen = ({navigation})=>{
     const handleNewRecord = () => {
         navigation.navigate("NewRecordsScreen");
     }
+    const handlePrintRecordScreen = () => {
+        navigation.navigate("PrintRecordScreen");
+    }
+
+    
     return(
         <View style={styles.menu}>
             
@@ -13,8 +18,8 @@ const RecordsScreen = ({navigation})=>{
                     <Image style={styles.image} source={require("../images/svg/plus-user-svgrepo-com.png")}/>
                     <Text>Novo prontuário</Text>
                   </TouchableOpacity>
-            <TouchableOpacity style={styles.button} >
-                    <Image style={styles.image} source={require("../images/svg/person-svgrepo-com.png")}/>
+            <TouchableOpacity style={styles.button} onPress={handlePrintRecordScreen} >
+                    <Image style={styles.image} source={require("../images/svg/person-svgrepo-com.png")} />
                     <Text>Prontuários</Text>
                   </TouchableOpacity>
         </View>
