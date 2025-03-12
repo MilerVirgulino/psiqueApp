@@ -7,6 +7,8 @@ import { app, auth } from "../firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { MaskedTextInput } from "react-native-mask-text";
 import { getAuth } from "firebase/auth";
+import { printToFileAsync } from "expo-print";
+import { shareAsync } from "expo-sharing";
 
 
 
@@ -301,8 +303,127 @@ const EditAnamneseScreen = ({ navigation }) => {
       );
     }
     const handlePrint = async () => {
-console.log('imprimindo')
+const html= `
+  <html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 20px;
+      }
+      h1 {
+        text-align: center;
+        text-decoration: underline;
+        color: #2c3e50;
+      }
+      .section {
+        margin-bottom: 20px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #34495e;
+        margin-bottom: 5px;
+      }
+      .section-content {
+        font-size: 14px;
+        margin-left: 20px;
+      }
+      .section-content p {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ficha de Anamnese</h1>
 
+    <div class="section">
+      <div class="section-title">Informações Pessoais</div>
+      <div class="section-content">
+        <p><strong>Nome:</strong> ${selectedPacient}</p>
+        <p><strong>Data de Nascimento:</strong> ${convertDate(date)}</p>
+        <p><strong>Gênero:</strong> ${gender}</p>
+        <p><strong>Nacionalidade:</strong> ${nation}</p>
+        <p><strong>Estado Civil:</strong> ${matrial}</p>
+        <p><strong>Escolaridade:</strong> ${education}</p>
+        <p><strong>Profissão:</strong> ${profession}</p>
+        <p><strong>Residência:</strong> ${residence}</p>
+        <p><strong>Telefone 1:</strong> ${phoneNumber1}</p>
+        <p><strong>Telefone 2:</strong> ${phoneNumber2}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Atendimento</div>
+      <div class="section-content">
+        <p><strong>Queixa Principal:</strong> ${complaint}</p>
+        <p><strong>Sintomas:</strong> ${symptom}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Histórico da Doença Atual</div>
+      <div class="section-content">
+        <p><strong>Início da Patologia:</strong> ${pathologyBegin}</p>
+        <p><strong>Intensidade:</strong> ${intensity}</p>
+        <p><strong>Tratamentos Anteriores:</strong> ${previousTreatments}</p>
+        <p><strong>Medicamentos:</strong> ${medicines}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Histórico Pessoal</div>
+      <div class="section-content">
+        <p><strong>Infância:</strong> ${infancy}</p>
+        <p><strong>Vícios:</strong> ${vices}</p>
+        <p><strong>Hobbies:</strong> ${hobbies}</p>
+        <p><strong>Trabalho:</strong> ${work}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Histórico Familiar</div>
+      <div class="section-content">
+        <p><strong>Parentes:</strong> ${parents}</p>
+        <p><strong>Irmãos:</strong> ${siblings}</p>
+        <p><strong>Esposa:</strong> ${spouse}</p>
+        <p><strong>Filhos:</strong> ${children}</p>
+        <p><strong>Local de Residência:</strong> ${home}</p>
+      </div>
+    </div>
+
+    
+
+    <div class="section">
+      <div class="section-title">Exame Psíquico</div>
+      <div class="section-content">
+        <p><strong>Aparência:</strong> ${aparence}</p>
+        <p><strong>Comportamento:</strong> ${beahavor}</p>
+        <p><strong>Atitude:</strong> ${attitude}</p>
+        <p><strong>Memória:</strong> ${memory}</p>
+        <p><strong>Inteligência:</strong> ${inteligency}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Diagnóstico</div>
+      <div class="section-content">
+        <p><strong>Hipótese Diagnóstica:</strong> ${diagnosticHypothesis}</p>
+      </div>
+    </div>
+
+  </body>
+</html>
+`
+  const file= await printToFileAsync(
+    {
+      html: html,
+      base64: false,
+      fileName: "Anamnese.html",
+    }
+  )
+  await shareAsync(file.uri)
     }
 
 
