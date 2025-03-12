@@ -14,6 +14,8 @@ import AnamneseScreen from './src/screens/AnamneseScreen';
 import NewAnamneseScreen from './src/screens/NewAnamneseScreen';
 import RecordsScreen from './src/screens/RecordsScreen';
 import NewRecordsScreen from './src/screens/NewRecordsScreen';
+import PrintAnamneseScreen from './src/screens/PrintAnamneseScreen';
+import EditAnamneseScreen from './src/screens/EditAnamneseScree';
 
 const Stack = createStackNavigator();
 
@@ -138,6 +140,28 @@ export default function App() {
           component={NewRecordsScreen}  
           options={({ navigation }) => ({
             title: 'Novo protunário',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="PrintAnamneseScreen"   
+          component={PrintAnamneseScreen}  
+          options={({ navigation }) => ({
+            title: 'Anamnese',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="EditAnamneseScreen"   
+          component={EditAnamneseScreen}  
+          options={({ navigation }) => ({
+            title: 'Anamnese',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>

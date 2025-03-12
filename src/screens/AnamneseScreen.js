@@ -6,6 +6,10 @@ const AnamneseScreen = ({navigation})=>{
     const handleNewAnamnese = () => {
         navigation.navigate("NewAnamneseScreen");
     }
+
+    const handleAnamnese = () => {
+        navigation.navigate("PrintAnamneseScreen");
+    }
     return(
         <View style={styles.menu}>
             
@@ -13,7 +17,7 @@ const AnamneseScreen = ({navigation})=>{
                     <Image style={styles.image} source={require("../images/svg/plus-user-svgrepo-com.png")}/>
                     <Text>Nova Anamnese</Text>
                   </TouchableOpacity>
-            <TouchableOpacity style={styles.button} >
+            <TouchableOpacity style={styles.button} onPress={handleAnamnese} >
                     <Image style={styles.image} source={require("../images/svg/person-svgrepo-com.png")}/>
                     <Text>Anamneses</Text>
                   </TouchableOpacity>
