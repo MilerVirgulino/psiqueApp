@@ -45,7 +45,6 @@ const PrintingRecordsScreen = ({ navigation }) => {
 
     return date.toISOString().split('T')[0];
   }
-  console.log(convertDate(dateStart));
 
   const handleSubmit = async () => {
     const instituicao = await AsyncStorage.getItem("instituicao");
@@ -56,6 +55,10 @@ const PrintingRecordsScreen = ({ navigation }) => {
       console.error("Instituição não encontrada.");
       return;
     }
+    if(!instituicao || !user || !dateStart || !dateFinish || !paciente || !selectedResponsavel){
+
+      return Alert.alert("Todos os campos são obrigatórios!");
+    } 
   
     try {
       const pacientesRef = collection(db, "DataBases", instituicao, "prontuarios", user.uid, "pacientes");
@@ -70,7 +73,6 @@ const PrintingRecordsScreen = ({ navigation }) => {
         const prontuarioData = doc.data();
         prontuarios.push(prontuarioData);
       });
-      console.log(prontuarios);
   
       // Ordenar os prontuários por data (supondo que o campo "date" seja uma string no formato "YYYY-MM-DD")
       prontuarios.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -103,6 +105,21 @@ const PrintingRecordsScreen = ({ navigation }) => {
                 font-size: 14px;
                 margin: 5px 0;
               }
+                .sing {
+                  text-align: center;
+                  text-decoration: underline;
+                  color: #2c3e50;
+                  margin-top: 100px;
+                }
+                  .sing-name {
+                  font-size: 14px;
+                  margin-top: 10px;
+                  text-align: center;
+                }
+                  .content {
+                  margin-top: 5px;
+                  margin-bottom: 10px;
+                }
             </style>
           </head>
           <body>
@@ -114,16 +131,22 @@ const PrintingRecordsScreen = ({ navigation }) => {
         htmlContent += `
           <div class="prontuario">
             <h2>Paciente: ${prontuarioData.name} - ${formatDate(prontuarioData.date)}</h2>
-            <p><strong>Intervenção:</strong> ${prontuarioData.intervention}</p>
-            <p><strong>Evolução:</strong> ${prontuarioData.evolution}</p>
-            <p><strong>Observações Adicionais:</strong> ${prontuarioData.adcionalObs}</p>
-            <p><strong>Relatório do Paciente:</strong> ${prontuarioData.pacientReporter}</p>
+            <p><strong>Intervenção:</strong> </p>
+            <div class="content">${prontuarioData.intervention} </div>
+            <p><strong>Evolução:</strong></p>
+            <div class="content">${prontuarioData.evolution} </div>
+            <p><strong>Observações Adicionais:</strong></p>
+            <div class="content">${prontuarioData.adcionalObs} </div>
+            <p><strong>Relatório do Paciente:</strong></p>
+            <div class="content">${prontuarioData.pacientReporter} </div>
           </div>
         `;
       });
   
       // Fechar a tag HTML
       htmlContent += `
+      <div class="sing">______________________________________________________</div>
+      <div class="sing-name">${selectedResponsavel}</div>
           </body>
         </html>
       `;
@@ -162,7 +185,6 @@ const PrintingRecordsScreen = ({ navigation }) => {
     }
   };
 
-  console.log(paciente);
 
   useEffect(() => {
     const fetchResponsaveis = async () => {

@@ -51,6 +51,10 @@ const EditAnamneseScreen = ({ navigation }) => {
   const [inteligency, setInteligency]= useState("");
   const [diagnosticHypothesis, setDiagnosticHypothesis]=useState("");
   const [pdfUri, setPdfUri] = useState('');
+  const [selectedResponsavel, setSelectedResponsavel] = useState("");
+  const [responsaveis, setResponsaveis] = useState([]);
+
+
 
 
   useEffect(() => {
@@ -291,7 +295,7 @@ const EditAnamneseScreen = ({ navigation }) => {
               // Tenta excluir o documento
               try {
                 await deleteDoc(pacienteRef);
-                Alert.alert("Paciente Excluido com Sucesso")
+                Alert.alert("Anamnese Excluido com Sucesso")
                 navigation.goBack();
                 
               } catch (error) {
@@ -333,6 +337,17 @@ const html= `
       .section-content p {
         margin: 5px 0;
       }
+         .sing {
+                  text-align: center;
+                  text-decoration: underline;
+                  color: #2c3e50;
+                  margin-top: 100px;
+                }
+                  .sing-name {
+                  font-size: 14px;
+                  margin-top: 10px;
+                  text-align: center;
+                }
     </style>
   </head>
   <body>
@@ -412,6 +427,9 @@ const html= `
         <p><strong>Hipótese Diagnóstica:</strong> ${diagnosticHypothesis}</p>
       </div>
     </div>
+    <div class="sing">____________________________________</div>
+    <div class="sing-name">${selectedResponsavel}</div>
+
 
   </body>
 </html>
@@ -425,6 +443,33 @@ const html= `
   )
   await shareAsync(file.uri)
     }
+
+    useEffect(() => {
+      const fetchResponsaveis = async () => {
+        try {
+          const instituicao = await AsyncStorage.getItem("instituicao");
+          if (!instituicao) {
+            console.error("Instituição não encontrada.");
+            return;
+          }
+  
+          const responsavelRef = collection(db, "DataBases", instituicao, "responsaveis");
+          const querySnapshot = await getDocs(responsavelRef);
+  
+          const responsaveisPulled = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            responsavel: doc.data().responsavel || "Responsável não definido",
+          }));
+  
+          setResponsaveis(responsaveisPulled);
+        } catch (error) {
+          console.error("Erro ao buscar responsáveis:", error);
+        }
+      };
+  
+      fetchResponsaveis();
+      
+    }, []);
 
 
   return (
@@ -562,6 +607,15 @@ const html= `
       <Text style={styles.title}>7. Hipótese Diagnóstica</Text>
 
       <TextInput style={styles.inputObs}  value={diagnosticHypothesis} onChangeText={setDiagnosticHypothesis}/>
+
+      <View style={styles.pacientes}>
+              <Picker selectedValue={selectedResponsavel} onValueChange={(itemValue) => setSelectedResponsavel(itemValue)}>
+                <Picker.Item label="Responsável" value="" />
+                {responsaveis.map((resp) => (
+                  <Picker.Item key={resp.id} label={resp.responsavel} value={resp.responsavel} />
+                ))}
+              </Picker>
+            </View>
 
       <TouchableOpacity style={styles.NewPacient} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Finalizar Edição</Text>

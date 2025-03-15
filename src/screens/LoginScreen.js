@@ -16,7 +16,6 @@ const LoginScreen = ({ navigation }) => {
     // Verifica se o usuário já está autenticado
     const user = auth.currentUser;  // Acesso correto ao objeto 'auth' para obter o 'currentUser'
     if (user) {
-      console.log("Usuário logado:", user.email);
       navigation.replace("Home");  // Redireciona para a página Home se o usuário estiver autenticado
     } else {
       console.log("Usuário não logado.");
@@ -34,8 +33,6 @@ const LoginScreen = ({ navigation }) => {
         id: doc.id,
         ...doc.data()
       }));
-
-      console.log("Instituições encontradas:", instituicoes);
 
       // Verifica se a instituição fornecida existe
       const instituicaoExiste = instituicoes.some(inst => inst.instituicao === instituicao);

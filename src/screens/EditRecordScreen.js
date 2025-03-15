@@ -173,11 +173,11 @@ const EditRecordsScreen = ({ navigation }) => {
   
       // Adiciona o paciente dentro da subcoleção
       await updateDoc(pacientesRef, dados);
-      Alert.alert("Sucesso", "Anamnese Realizada!");
+      Alert.alert("Sucesso", "Prontuário realizado!");
       navigation.goBack();
     } catch (error) {
       console.error("Erro ao salvar os dados:", error);
-      Alert.alert("Erro", "Não foi realizar a anamnese.");
+      Alert.alert("Erro", "Não foi realizar o prontuário.");
     }
   };
 
