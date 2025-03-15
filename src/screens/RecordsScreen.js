@@ -9,6 +9,9 @@ const RecordsScreen = ({navigation})=>{
     const handlePrintRecordScreen = () => {
         navigation.navigate("PrintRecordScreen");
     }
+    const handlePrintOneRecordScreen = () => {
+        navigation.navigate("PrintOneRecordScreen");
+    }
 
     
     return(
@@ -21,6 +24,10 @@ const RecordsScreen = ({navigation})=>{
             <TouchableOpacity style={styles.button} onPress={handlePrintRecordScreen} >
                     <Image style={styles.image} source={require("../images/svg/person-svgrepo-com.png")} />
                     <Text>Prontuários</Text>
+                  </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handlePrintOneRecordScreen} >
+                    <Image style={styles.image} source={require("../images/svg/print-svgrepo-com.png")} />
+                    <Text>Imprimir prontuários</Text>
                   </TouchableOpacity>
         </View>
     )

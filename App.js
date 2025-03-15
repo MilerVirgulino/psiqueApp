@@ -18,6 +18,8 @@ import PrintAnamneseScreen from './src/screens/PrintAnamneseScreen';
 import EditAnamneseScreen from './src/screens/EditAnamneseScree';
 import PrintRecordScreen from './src/screens/PrintRecorScreen';
 import EditRecordsScreen from './src/screens/EditRecordScreen';
+import PrintOneRecordScreen from './src/screens/PrintOneRecordScreen';
+import PrintingRecordsScreen from './src/screens/PrintingRecordsScreen';
 
 const Stack = createStackNavigator();
 
@@ -186,6 +188,28 @@ export default function App() {
           component={EditRecordsScreen}  
           options={({ navigation }) => ({
             title: 'Prontuários',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="PrintOneRecordScreen"   
+          component={PrintOneRecordScreen}  
+          options={({ navigation }) => ({
+            title: 'Imprimir Prontuários',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="PrintingRecordsScreen"   
+          component={PrintingRecordsScreen}  
+          options={({ navigation }) => ({
+            title: 'Imprimir Prontuários',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
