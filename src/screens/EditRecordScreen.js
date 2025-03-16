@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StyleSheet 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect, useCallback } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { getFirestore, collection, addDoc, doc, Timestamp, getDocs, getDoc,updateDoc } from "firebase/firestore"; // Importando o Timestamp
+import { getFirestore, collection, addDoc, doc, Timestamp, getDocs, getDoc,updateDoc,deleteDoc } from "firebase/firestore"; // Importando o Timestamp
 import { app, auth } from "../firebaseConfig";
 import { Picker } from "@react-native-picker/picker";
 import { MaskedTextInput } from "react-native-mask-text";
@@ -139,6 +139,54 @@ const EditRecordsScreen = ({ navigation }) => {
     return new Date(year, month - 1, day); // Mês começa de 0 (janeiro) no JavaScript
   }
 
+  const handleDell = async () => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        Alert.alert("Erro", "Usuário não autenticado.");
+        return;
+      }
+  
+      const idPacienteEdit = await AsyncStorage.getItem("idRecord");
+      const instituicao = await AsyncStorage.getItem("instituicao"); // Certifique-se de que está pegando a instituição corretamente
+  
+      if (!idPacienteEdit || !instituicao) {
+        Alert.alert("Erro", "Dados incompletos para exclusão.");
+        return;
+      }
+  
+      const instituicaoDocRef = doc(db, "DataBases", instituicao);
+      const pacientesRef = doc(instituicaoDocRef, "prontuarios", user.uid, "pacientes", idPacienteEdit);
+  
+      // Exibe a caixa de diálogo de confirmação
+      Alert.alert(
+        "Confirmação de Exclusão",
+        "Deseja realmente excluir o prontuário?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Confirmar",
+            onPress: async () => {
+              try {
+                await deleteDoc(pacientesRef);
+                Alert.alert("Sucesso", "Prontuário excluído!");
+                navigation.goBack();
+              } catch (error) {
+                console.error("Erro ao excluir prontuário:", error);
+                Alert.alert("Erro", "Não foi possível excluir o prontuário.");
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Erro ao processar exclusão:", error);
+      Alert.alert("Erro", "Ocorreu um erro inesperado.");
+    }
+  };
+
 
   const handleSubmit = async () => {
     if (!instituicao) {
@@ -230,6 +278,9 @@ const EditRecordsScreen = ({ navigation }) => {
 
       <TouchableOpacity style={styles.NewPacient} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Salvar prontuário</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.NewPacient} onPress={handleDell}>
+        <Text style={styles.buttonText}>Deletar prontuário</Text>
       </TouchableOpacity>
     </ScrollView>
   );

@@ -311,7 +311,12 @@ const html= `
   <html>
   <head>
     <style>
+     @page {
+      size: A4;
+      margin: 20mm
+      }
       body {
+     
         font-family: Arial, sans-serif;
         line-height: 1.6;
         margin: 20px;

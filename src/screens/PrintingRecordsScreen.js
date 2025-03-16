@@ -82,6 +82,10 @@ const PrintingRecordsScreen = ({ navigation }) => {
         <html>
           <head>
             <style>
+            @page {
+              size: A4;
+              margin: 20mm
+              }
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
@@ -96,6 +100,7 @@ const PrintingRecordsScreen = ({ navigation }) => {
                 margin-bottom: 20px;
                 border-bottom: 1px solid #ccc;
                 padding-bottom: 20px;
+                page-break: always;
               }
               .prontuario h2 {
                 font-size: 18px;
