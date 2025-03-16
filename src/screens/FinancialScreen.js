@@ -2,7 +2,7 @@ import { View, ScrollView, StyleSheet, TextInput, TouchableOpacity, Text, Alert 
 import { useState, useEffect } from "react";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore, collection, getDocs, addDoc, query, where } from "firebase/firestore";
+import { getFirestore, collection, getDocs, addDoc, query, where, docs } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getAuth } from "firebase/auth";
@@ -12,7 +12,7 @@ import { shareAsync } from "expo-sharing";
 const db = getFirestore(app);
 
 const FinancialScreen = ({ navigation }) => {
-  const [selectedPacient, setSelectedPacient] = useState("");
+  const [selectedPacient, setSelectedPacient] = useState("todos");
   const [pacientes, setPacientes] = useState([]);
   const [selectedTipo, setSelectedTipo] = useState("");
   const [tipos, setTipos] = useState([]);
@@ -25,6 +25,8 @@ const FinancialScreen = ({ navigation }) => {
   const [dateFinish, setDateFinish] = useState(null);
   const [valor, setValor] = useState("");
   const [paciente, setPaciente] = useState(""); // estado para armazenar o nome do paciente
+  const [filteredPacientes, setFilteredPacientes] = useState([]);
+  
 
   const onChangeDateStart = (event, selectedDateStart) => {
     if (selectedDateStart) {
@@ -45,116 +47,149 @@ const FinancialScreen = ({ navigation }) => {
 
     return date.toISOString().split('T')[0];
   }
-
   const handleSubmit = async () => {
     const instituicao = await AsyncStorage.getItem("instituicao");
-    const auth = getAuth();
-    const user = auth.currentUser;
   
     if (!instituicao) {
       console.error("Instituição não encontrada.");
       return;
     }
-    if(!instituicao || !user || !dateStart || !dateFinish || !paciente || !selectedResponsavel){
-
-      return Alert.alert("Todos os campos são obrigatórios!");
-    } 
   
     try {
-      const pacientesRef = collection(db, "DataBases", instituicao, "prontuarios", user.uid, "pacientes");
+      const pacientesRef = collection(db, "DataBases", instituicao, "agendamentos");
   
-      // Criando a consulta para pegar todos os prontuários
-      const q = query(pacientesRef, where("name", "==", paciente), where("date", ">=", convertDate(dateStart)), where("date", "<=", convertDate(dateFinish)));
+      let q;
   
+      if (selectedPacient == "todos") {
+        // Consulta para todos os pacientes
+        q = query(
+          pacientesRef,
+          where("data", ">=", convertDate(dateStart)),
+          where("data", "<=", convertDate(dateFinish)),
+          where("agendamento", "==", "Atendido")
+        );
+      } else {
+        // Consulta para paciente específico
+        q = query(
+          pacientesRef,
+          where("paciente", "==", selectedPacient),
+          where("data", ">=", convertDate(dateStart)),
+          where("data", "<=", convertDate(dateFinish)),
+          where("agendamento", "==", "Atendido")
+        );
+      }
+    console.log(selectedPacient);
+      
+      // Executar a consulta
       const querySnapshot = await getDocs(q);
-      let prontuarios = [];
   
+      const prontuarios = [];
+
+      // Coletar os dados dos documentos encontrados
       querySnapshot.forEach((doc) => {
-        const prontuarioData = doc.data();
-        prontuarios.push(prontuarioData);
-      });
+        const data = doc.data();
+        prontuarios.push({
+          id: doc.id,
+          name: data.paciente,
+          date: data.data,
+          grade: data.horario,
+          responsavel: data.responsavel,
+          valor: data.valor,
+          tipo: data.tipo,
+        });
+    });
+    console.log(prontuarios)
   
-      // Ordenar os prontuários por data (supondo que o campo "date" seja uma string no formato "YYYY-MM-DD")
-      prontuarios.sort((a, b) => new Date(a.date) - new Date(b.date));
+      // Logar os dados para verificar o que está sendo retornado
   
       // Criar a página HTML com todos os prontuários
       let htmlContent = `
-        <html>
-          <head>
-            <style>
+      <html>
+        <head>
+          <style>
             @page {
               size: A4;
-              margin: 20mm
+              margin: 1mm;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              margin: 20px;
+            }
+            h1 {
+              text-align: center;
+              text-decoration: underline;
+              color: #2c3e50;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #ccc;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #f4f4f4;
+              color: #2c3e50;
+            }
+            .sing {
+              text-align: center;
+              text-decoration: underline;
+              color: #2c3e50;
+              margin-top: 50px;
+            }
+            .sing-name {
+              font-size: 14px;
+              margin-top: 10px;
+              text-align: center;
+            }
+              .name{
+              width: 300px
               }
-              body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                margin: 20px;
-              }
-              h1 {
-                text-align: center;
-                text-decoration: underline;
-                color: #2c3e50;
-              }
-              .prontuario {
-                margin-bottom: 20px;
-                border-bottom: 1px solid #ccc;
-                padding-bottom: 20px;
-                page-break: always;
-              }
-              .prontuario h2 {
-                font-size: 18px;
-                color: #34495e;
-              }
-              .prontuario p {
-                font-size: 14px;
-                margin: 5px 0;
-              }
-                .sing {
-                  text-align: center;
-                  text-decoration: underline;
-                  color: #2c3e50;
-                  margin-top: 100px;
-                }
-                  .sing-name {
-                  font-size: 14px;
-                  margin-top: 10px;
-                  text-align: center;
-                }
-                  .content {
-                  margin-top: 5px;
-                  margin-bottom: 10px;
-                }
-            </style>
-          </head>
-          <body>
-            <h1>Prontuários</h1>
-      `;
+          </style>
+        </head>
+        <body>
+          <h1>Relatório</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Responsável</th>
+                <th>Nome</th>
+                <th>Data</th>
+                <th>Horário</th>
+                <th>Responsável</th>
+                <th>Valor (R$)</th>
+              </tr>
+            </thead>
+            <tbody>
+  `;
   
-      // Adicionar cada prontuário à página HTML
-      prontuarios.forEach((prontuarioData) => {
-        htmlContent += `
-          <div class="prontuario">
-            <h2>Paciente: ${prontuarioData.name} - ${formatDate(prontuarioData.date)}</h2>
-            <p><strong>Intervenção:</strong> </p>
-            <div class="content">${prontuarioData.intervention} </div>
-            <p><strong>Evolução:</strong></p>
-            <div class="content">${prontuarioData.evolution} </div>
-            <p><strong>Observações Adicionais:</strong></p>
-            <div class="content">${prontuarioData.adcionalObs} </div>
-            <p><strong>Relatório do Paciente:</strong></p>
-            <div class="content">${prontuarioData.pacientReporter} </div>
-          </div>
-        `;
-      });
+  // Adicionar cada prontuário como uma linha na tabela
+  prontuarios.forEach((prontuarioData) => {
+    htmlContent += `
+              <tr>
+                <td>${prontuarioData.responsavel}</td>
+                <td class="name">${prontuarioData.name}</td>
+                <td>${prontuarioData.date}</td>
+                <td>${prontuarioData.grade}</td>
+                <td>${prontuarioData.responsavel}</td>
+                <td>${prontuarioData.valor.toFixed(2)}</td>
+              </tr>
+    `;
+  });
   
-      // Fechar a tag HTML
-      htmlContent += `
-      <div class="sing">______________________________________________________</div>
-      <div class="sing-name">${selectedResponsavel}</div>
-          </body>
-        </html>
-      `;
+  // Fechar a tabela e a página HTML
+  htmlContent += `
+            </tbody>
+          </table>
+        </body>
+      </html>
+  `;
+  
+  
   
       // Gerar o arquivo ou visualização
       try {
@@ -168,62 +203,73 @@ const FinancialScreen = ({ navigation }) => {
       } catch (error) {
         console.error("Erro ao gerar o arquivo:", error);
       }
+  
     } catch (error) {
       console.error("Erro ao buscar prontuário:", error);
       Alert.alert("Não foi possível buscar os prontuários");
     }
   };
+  
+  
+  
 
   function formatDate(inputDate) {
     const [year, month, day] = inputDate.split("-");
     return `${day}/${month}/${year}`;
   }
 
-  const getPaciente = async () => {
-    try {
-      const pacienteName = await AsyncStorage.getItem("pacienteName");
-      if (pacienteName) {
-        setPaciente(pacienteName); // Atualiza o estado do paciente
-      }
-    } catch (error) {
-      console.error("Erro ao buscar o nome do paciente:", error);
-    }
-  };
-
-
+  
   useEffect(() => {
-    const fetchResponsaveis = async () => {
+    const fetchPacientes = async () => {
       try {
         const instituicao = await AsyncStorage.getItem("instituicao");
         if (!instituicao) {
           console.error("Instituição não encontrada.");
           return;
         }
-
-        const responsavelRef = collection(db, "DataBases", instituicao, "responsaveis");
-        const querySnapshot = await getDocs(responsavelRef);
-
-        const responsaveisPulled = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          responsavel: doc.data().responsavel || "Responsável não definido",
-        }));
-
-        setResponsaveis(responsaveisPulled);
+  
+        const pacientesRef = collection(db, "DataBases", instituicao, "agendamentos");
+        const querySnapshot = await getDocs(pacientesRef);
+  
+        const pacientesPulled = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            name: doc.data().paciente || "Nome não definido",
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name)); // Ordenação alfabética
+  
+        // Filtrando duplicatas
+        const pacientesSemDuplicatas = pacientesPulled.filter((value, index, self) =>
+          index === self.findIndex((t) => (
+            t.name === value.name
+          ))
+        );
+  
+        setPacientes(pacientesSemDuplicatas);
       } catch (error) {
-        console.error("Erro ao buscar responsáveis:", error);
+        console.error("Erro ao buscar pacientes:", error);
       }
     };
-
-    fetchResponsaveis();
-    getPaciente(); // Chama a função para buscar o nome do paciente
+    fetchPacientes();
   }, []);
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.pacientContent}>
-        <Text style={styles.pacient}>Paciente:</Text>
-        <Text style={styles.pacient}>{paciente || "Nome não encontrado"}</Text>
-      </View>
+    {/* Picker para selecionar paciente */}
+    <Text style={styles.textdate}>Selecione Paciente</Text>
+
+                <View style={styles.pacientes}>
+                <Picker
+          selectedValue={selectedPacient}
+          onValueChange={(itemValue) => setSelectedPacient(itemValue)}
+        >
+          <Picker.Item label="Todos" value="todos"/>
+          {pacientes.map((paciente) => (
+            <Picker.Item key={paciente.id} label={paciente.name} value={paciente.name} />
+          ))}
+        </Picker>
+                </View>
 
       <Text style={styles.textdate}>Selecione uma data de início</Text>
 
@@ -273,7 +319,7 @@ const FinancialScreen = ({ navigation }) => {
       </View>
 
       <TouchableOpacity style={styles.Button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Imprimir prontuário</Text>
+        <Text style={styles.buttonText}>Imprimir Relatório</Text>
       </TouchableOpacity>
     </ScrollView>
   );

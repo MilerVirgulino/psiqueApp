@@ -20,6 +20,7 @@ import PrintRecordScreen from './src/screens/PrintRecorScreen';
 import EditRecordsScreen from './src/screens/EditRecordScreen';
 import PrintOneRecordScreen from './src/screens/PrintOneRecordScreen';
 import PrintingRecordsScreen from './src/screens/PrintingRecordsScreen';
+import FinancialScreen from './src/screens/FinancialScreen';
 
 const Stack = createStackNavigator();
 
@@ -210,6 +211,17 @@ export default function App() {
           component={PrintingRecordsScreen}  
           options={({ navigation }) => ({
             title: 'Imprimir Prontuários',
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
+              <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>
+            ),
+          })}
+        />
+        <Stack.Screen 
+          name="FinancialScreen"   
+          component={FinancialScreen}  
+          options={({ navigation }) => ({
+            title: 'Imprimir Relatorio financeiro',
             headerLeft: () => (
               <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 15 }}>
               <Image source={require("./src/images/svg/arrow-back-svgrepo-com.png")} style={styles.image}/>              </TouchableOpacity>

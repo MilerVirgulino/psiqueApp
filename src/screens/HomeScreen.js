@@ -37,6 +37,7 @@ const HomeScreen = ({ navigation }) => {
     navigation.replace("Login");
   };
 
+
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
@@ -62,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
           <Image source={require("../images/svg/record-svgrepo-com.png")} style={styles.image} />
           <Text>Prontuários</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("FinancialScreen")}>
           <Image source={require("../images/svg/money-bag-svgrepo-com.png")} style={styles.image} />
           <Text>Financeiro</Text>
         </TouchableOpacity>
